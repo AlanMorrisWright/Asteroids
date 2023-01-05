@@ -79,11 +79,11 @@ xxx = 50000
 pygame.mixer.pre_init(44100, -16, 2, 1048)
 pygame.mixer.init()
 
-sound_fire = pygame.mixer.Sound('sounds/fire.ogg')
-sound_thruster = pygame.mixer.Sound('sounds/thruster.ogg')
-sound_rock_hit = pygame.mixer.Sound('sounds/rock_hit.ogg')
-sound_big_ufo = pygame.mixer.Sound('sounds/big_ufo.ogg')
-sound_extra_ship = pygame.mixer.Sound('sounds/extra_ship.ogg')
+sound_fire = pygame.mixer.Sound('sound/fire.ogg')
+sound_thruster = pygame.mixer.Sound('sound/thruster.ogg')
+sound_rock_hit = pygame.mixer.Sound('sound/rock_hit.ogg')
+sound_big_ufo = pygame.mixer.Sound('sound/big_ufo.ogg')
+sound_extra_ship = pygame.mixer.Sound('sound/extra_ship.ogg')
 
 sound_fire.set_volume(.5)
 sound_thruster.set_volume(.5)
