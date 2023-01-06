@@ -7,6 +7,24 @@ import pickle
 import random
 from string import ascii_uppercase
 
+surface = pygame.display.set_mode(cfg.SCREEN_SIZE, pygame.FULLSCREEN)
+
+# sound
+pygame.mixer.pre_init(44100, -16, 2, 1048)
+pygame.mixer.init()
+
+sound_fire = pygame.mixer.Sound('sound/fire.ogg')
+sound_thruster = pygame.mixer.Sound('sound/thruster.ogg')
+sound_rock_hit = pygame.mixer.Sound('sound/rock_hit.ogg')
+sound_big_ufo = pygame.mixer.Sound('sound/big_ufo.ogg')
+sound_extra_ship = pygame.mixer.Sound('sound/extra_ship.ogg')
+
+sound_fire.set_volume(.5)
+sound_thruster.set_volume(.5)
+sound_rock_hit.set_volume(1)
+sound_big_ufo.set_volume(.1)
+sound_extra_ship.set_volume(.5)
+
 name_chars = ascii_uppercase + ' '
 
 if sys.platform in ["win32", "win64"]:
@@ -182,7 +200,7 @@ def move_ship():
 def add_bullet():
     if not cfg.PLAYER_BULLETS or len(cfg.PLAYER_BULLETS) < cfg.FIRED_BULLETS_MAX:
         cfg.PLAYER_BULLETS.append(PlayerBullet())
-        cfg.sound_fire.play()
+        sound_fire.play()
         return True
     return False
 
@@ -206,7 +224,7 @@ def move_bullets(who):
                 if who[i].pos[1] > cfg.SCREEN_HEIGHT:
                     who[i].pos[1] -= cfg.SCREEN_HEIGHT
 
-                bullet(cfg.surface, who[i])
+                bullet(surface, who[i])
 
 class AlienShip(object):
     def __init__(self):
@@ -394,7 +412,7 @@ def add_alien_bullet():
     if cfg.ALIEN_SHIP:
         if not cfg.ALIEN_BULLETS or len(cfg.ALIEN_BULLETS) < 100:
             cfg.ALIEN_BULLETS.append(AlienBullet())
-            cfg.sound_fire.play()
+            sound_fire.play()
             return True
         return False
 
@@ -418,7 +436,7 @@ def move_alien_bullets():
                 if cfg.ALIEN_BULLETS[i].pos[1] > cfg.SCREEN_HEIGHT:
                     cfg.ALIEN_BULLETS[i].pos[1] -= cfg.SCREEN_HEIGHT
 
-                bullet(cfg.surface, cfg.ALIEN_BULLETS[i])
+                bullet(surface, cfg.ALIEN_BULLETS[i])
 
 class Rock(object):
     def __init__(self, size, pos, vel):
@@ -570,7 +588,7 @@ def move_rocks():
         cfg.ROCKS[i].angle += cfg.ROCKS[i].rotation_speed / cfg.ACTUAL_FPS
         cfg.ROCKS[i].points_screen = calc_screen_pos(cfg.ROCKS[i], cfg.ROCKS[i].points)
 
-        rock(cfg.surface, cfg.ROCKS[i])
+        rock(surface, cfg.ROCKS[i])
 
 class Spark(object):
     def __init__(self, pos, vel_x, vel_y):
@@ -611,7 +629,7 @@ def move_sparks():
                 if cfg.SPARKS[i].pos[1] > cfg.SCREEN_HEIGHT:
                     cfg.SPARKS[i].pos[1] -= cfg.SCREEN_HEIGHT
 
-                spark_bit(cfg.surface, cfg.SPARKS[i])
+                spark_bit(surface, cfg.SPARKS[i])
     return some_bits
 
 
@@ -628,7 +646,7 @@ def alien_bullet_ship():
             del bullets[b]
             score = ship[0].score
             del ship[u]
-            cfg.sound_rock_hit.play()
+            sound_rock_hit.play()
             cfg.PLAYER_STATUS = 'ship died'
             cfg.GAME_STATUS_WHEN = pygame.time.get_ticks()
             cfg.player_ship_thrust = False
@@ -647,7 +665,7 @@ def player_bullet_ship():
         del bullets[b]
         score = ship[0].score
         del ship[u]
-        cfg.sound_rock_hit.play()
+        sound_rock_hit.play()
         return score
     return 0
 
@@ -659,7 +677,7 @@ def bullet_rock(bullets):
         add_sparks(cfg.ROCKS[r].pos, 0, 0, 7)
         score = cfg.ROCKS[r].score
         split_rock(r)
-        cfg.sound_rock_hit.play()
+        sound_rock_hit.play()
         return score
     return 0
 
@@ -678,7 +696,7 @@ def ship_rock(ship):
                                    ship[0].vel[0],
                                    ship[0].vel[1],
                                    50)
-                        cfg.sound_rock_hit.play()
+                        sound_rock_hit.play()
                         return r
     return -1
 
@@ -703,7 +721,7 @@ def player_ship_rock():
             cfg.show_ship = False
             cfg.player_ship_thrust = False
             cfg.playing_thrust_sound = False
-            cfg.sound_thruster.fadeout(200)
+            sound_thruster.fadeout(200)
             del cfg.PLAYER_SHIP[0]
             return score
     return 0
@@ -769,7 +787,7 @@ def ship_ship():
                 if line_line_hit(l1p1x, l1p1y, l1p2x, l1p2y, l2p1x, l2p1y, l2p2x, l2p2y):
                     add_sparks(ship1.pos, ship1.vel[0], ship1.vel[1], 50)
                     add_sparks(ship2.pos, ship2.vel[0], ship2.vel[1], 50)
-                    cfg.sound_rock_hit.play()
+                    sound_rock_hit.play()
                     score = cfg.ALIEN_SHIP[0].score
                     del cfg.ALIEN_SHIP[0]
                     del cfg.PLAYER_SHIP[0]
@@ -971,10 +989,10 @@ def main():
         if not get_input():
             break
 
-        cfg.surface.fill((0, 0, 0))
+        surface.fill((0, 0, 0))
 
         if cfg.PLAYER_STATUS == 'start screen':
-            start_screen(cfg.surface)
+            start_screen(surface)
             if cfg.player_ship_firing:
                 cfg.player_ship_firing = False
                 cfg.PLAYER_STATUS = 'waiting for space'
@@ -994,7 +1012,7 @@ def main():
                     cfg.PLAYER_STATUS = 'waiting for space'
 
         if cfg.PLAYER_STATUS == 'game over':
-            game_over(cfg.surface)
+            game_over(surface)
             cfg.control_play_ship = False
             if cfg.player_ship_firing:
                 cfg.player_ship_firing = False
@@ -1016,7 +1034,7 @@ def main():
                 me_show = True
 
         if cfg.PLAYER_STATUS == 'new high score':
-            game_over(cfg.surface)
+            game_over(surface)
 
             if pygame.time.get_ticks() > flash_when + 150:
                 # make it flash..
@@ -1054,16 +1072,16 @@ def main():
 
 
         if cfg.PLAYER_STATUS == 'playing':
-            ship(cfg.surface, cfg.PLAYER_SHIP[0].points_screen)
+            ship(surface, cfg.PLAYER_SHIP[0].points_screen)
             if cfg.playing_thrust_sound:
-                ship(cfg.surface, cfg.PLAYER_SHIP[0].fpoints_screen)
+                ship(surface, cfg.PLAYER_SHIP[0].fpoints_screen)
             if cfg.player_ship_thrust:
                 if not cfg.playing_thrust_sound:
-                    cfg.sound_thruster.play(-1, fade_ms=100)
+                    sound_thruster.play(-1, fade_ms=100)
                     cfg.playing_thrust_sound = True
             else:
                 if cfg.playing_thrust_sound:
-                    cfg.sound_thruster.fadeout(200)
+                    sound_thruster.fadeout(200)
                     cfg.playing_thrust_sound = False
             if cfg.player_ship_firing:
                 if not player_ship_fired_when:
@@ -1099,22 +1117,22 @@ def main():
 
         bullet_rock(cfg.ALIEN_BULLETS)
         move_sparks()
-        score(cfg.surface)
-        parked_ships(cfg.surface)
+        score(surface)
+        parked_ships(surface)
 
         # alien ship
         if len(cfg.ALIEN_SHIP) > 0:
             if not ufo_sound:
-                cfg.sound_big_ufo.play(-1, fade_ms=1000)
+                sound_big_ufo.play(-1, fade_ms=1000)
                 ufo_sound = True
-            ship(cfg.surface, cfg.ALIEN_SHIP[0].points_screen)
+            ship(surface, cfg.ALIEN_SHIP[0].points_screen)
             move_alien_ship()
             if pygame.time.get_ticks() > alien_ship_fire_when:
                 if add_alien_bullet():
                     alien_ship_fire_when = pygame.time.get_ticks() + 5000
         else:
             if ufo_sound:
-                cfg.sound_big_ufo.fadeout(100)
+                sound_big_ufo.fadeout(100)
                 ufo_sound = False
             if no_alien_ship_when == 0:
                 no_alien_ship_when = pygame.time.get_ticks()
@@ -1134,7 +1152,7 @@ def main():
                 waiting_for_spacer = pygame.time.get_ticks()
 
         cfg.ACTUAL_FPS = max(clock.get_fps(), 1)
-        debug(cfg.surface, 0, 90, "A FPS: " + str(int(cfg.ACTUAL_FPS)))
+        debug(surface, 0, 90, "A FPS: " + str(int(cfg.ACTUAL_FPS)))
         # draw_screen.debug(surface, 0, 90, "a: " + str(no_alien_ship_when))
 
         pygame.display.update()
@@ -1146,7 +1164,7 @@ def new_score(score_before, score_delta):
     cfg.SCORE += score_delta
     if int(cfg.SCORE / cfg.EXTRA_SHIP_SCORE) > int(score_before / cfg.EXTRA_SHIP_SCORE):
         add_parked_ships(1)
-        cfg.sound_extra_ship.play(4)
+        sound_extra_ship.play(4)
 
 
 if __name__ == "__main__":

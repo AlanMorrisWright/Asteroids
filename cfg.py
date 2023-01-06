@@ -1,5 +1,4 @@
 # import random
-import pygame
 
 TARGET_FPS = 100
 ACTUAL_FPS = TARGET_FPS
@@ -15,7 +14,6 @@ SCREEN_SIZE = [SCREEN_WIDTH, SCREEN_HEIGHT]
 c = 255
 SCREEN_COLOR = [c, c, c]
 FONT = "Courier New"
-surface = pygame.display.set_mode(SCREEN_SIZE,pygame.FULLSCREEN)
 
 # game
 SCORE = 500
@@ -74,20 +72,3 @@ player_ship_fired_when = 0
 ALIEN_SHIP = []
 ALIEN_SHIP_SPEED = 150  # of 2 pi per sec?
 xxx = 50000
-
-# sound
-pygame.mixer.pre_init(44100, -16, 2, 1048)
-pygame.mixer.init()
-
-sound_fire = pygame.mixer.Sound('sound/fire.ogg')
-sound_thruster = pygame.mixer.Sound('sound/thruster.ogg')
-sound_rock_hit = pygame.mixer.Sound('sound/rock_hit.ogg')
-sound_big_ufo = pygame.mixer.Sound('sound/big_ufo.ogg')
-sound_extra_ship = pygame.mixer.Sound('sound/extra_ship.ogg')
-
-sound_fire.set_volume(.5)
-sound_thruster.set_volume(.5)
-sound_rock_hit.set_volume(1)
-sound_big_ufo.set_volume(.1)
-sound_extra_ship.set_volume(.5)
-
