@@ -1,7 +1,7 @@
 import cfg
 import hit
 import rock
-import screen
+import calcscreen
 import pygame
 import sys
 import os
@@ -106,13 +106,13 @@ class PlayerShip(object):
         self.vel = [0, 0]
         self.angle = math.pi
         self.rotation_vel = 0
-        self.points_screen = screen.calc_screen_pos(self, self.points)
+        self.points_screen = calcscreen.calc_screen_pos(self, self.points)
         # flame
         self.fpoints = []
         self.fpoints.append((0, -13))
         self.fpoints.append((0.8 * math.pi, 8))
         self.fpoints.append(((2 - 0.8) * math.pi, 8))
-        self.fpoints_screen = screen.calc_screen_pos(self, self.fpoints)
+        self.fpoints_screen = calcscreen.calc_screen_pos(self, self.fpoints)
 
 
 class PlayerBullet(object):
@@ -178,8 +178,8 @@ def move_ship():
     cfg.PLAYER_SHIP[0].angle += \
         cfg.PLAYER_SHIP[0].rotation_vel * cfg.PLAYER_SHIP_ROTATION_SPEED / cfg.ACTUAL_FPS
 
-    cfg.PLAYER_SHIP[0].points_screen = screen.calc_screen_pos(cfg.PLAYER_SHIP[0], cfg.PLAYER_SHIP[0].points)
-    cfg.PLAYER_SHIP[0].fpoints_screen = screen.calc_screen_pos(cfg.PLAYER_SHIP[0], cfg.PLAYER_SHIP[0].fpoints)
+    cfg.PLAYER_SHIP[0].points_screen = calcscreen.calc_screen_pos(cfg.PLAYER_SHIP[0], cfg.PLAYER_SHIP[0].points)
+    cfg.PLAYER_SHIP[0].fpoints_screen = calcscreen.calc_screen_pos(cfg.PLAYER_SHIP[0], cfg.PLAYER_SHIP[0].fpoints)
 
 
 def add_bullet():
@@ -209,7 +209,7 @@ def move_bullets(who):
                 if who[i].pos[1] > cfg.SCREEN_HEIGHT:
                     who[i].pos[1] -= cfg.SCREEN_HEIGHT
 
-                screen.bullet(cfg.surface, who[i])
+                calcscreen.bullet(cfg.surface, who[i])
 
 class AlienShip(object):
     def __init__(self):
@@ -241,7 +241,7 @@ class AlienShip(object):
         self.born = pygame.time.get_ticks()
         self.next_steer = self.born + 1000
         self.vel = [xv, 0]
-        self.points_screen = screen.calc_screen_pos_alien_ship(self)
+        self.points_screen = calcscreen.calc_screen_pos_alien_ship(self)
 
 
 class AlienBullet(object):
@@ -387,7 +387,7 @@ def move_alien_ship():
     if cfg.ALIEN_SHIP[0].pos[1] > cfg.SCREEN_HEIGHT:
         cfg.ALIEN_SHIP[0].pos[1] -= cfg.SCREEN_HEIGHT
 
-    cfg.ALIEN_SHIP[0].points_screen = screen.calc_screen_pos_alien_ship(cfg.ALIEN_SHIP[0])
+    cfg.ALIEN_SHIP[0].points_screen = calcscreen.calc_screen_pos_alien_ship(cfg.ALIEN_SHIP[0])
 
     if cfg.ALIEN_SHIP[0].pos[0] < -40 or cfg.ALIEN_SHIP[0].pos[0] > cfg.SCREEN_WIDTH + 40:
         del cfg.ALIEN_SHIP[0]
@@ -421,7 +421,7 @@ def move_alien_bullets():
                 if cfg.ALIEN_BULLETS[i].pos[1] > cfg.SCREEN_HEIGHT:
                     cfg.ALIEN_BULLETS[i].pos[1] -= cfg.SCREEN_HEIGHT
 
-                screen.bullet(cfg.surface, cfg.ALIEN_BULLETS[i])
+                calcscreen.bullet(cfg.surface, cfg.ALIEN_BULLETS[i])
 
 def main():
     load_high_scores()
@@ -441,7 +441,7 @@ def main():
         cfg.surface.fill((0, 0, 0))
 
         if cfg.PLAYER_STATUS == 'start screen':
-            screen.start_screen(cfg.surface)
+            calcscreen.start_screen(cfg.surface)
             if cfg.player_ship_firing:
                 cfg.player_ship_firing = False
                 cfg.PLAYER_STATUS = 'waiting for space'
@@ -461,7 +461,7 @@ def main():
                     cfg.PLAYER_STATUS = 'waiting for space'
 
         if cfg.PLAYER_STATUS == 'game over':
-            screen.game_over(cfg.surface)
+            calcscreen.game_over(cfg.surface)
             cfg.control_play_ship = False
             if cfg.player_ship_firing:
                 cfg.player_ship_firing = False
@@ -483,7 +483,7 @@ def main():
                 me_show = True
 
         if cfg.PLAYER_STATUS == 'new high score':
-            screen.game_over(cfg.surface)
+            calcscreen.game_over(cfg.surface)
 
             if pygame.time.get_ticks() > flash_when + 150:
                 # make it flash..
@@ -521,9 +521,9 @@ def main():
 
 
         if cfg.PLAYER_STATUS == 'playing':
-            screen.ship(cfg.surface, cfg.PLAYER_SHIP[0].points_screen)
+            calcscreen.ship(cfg.surface, cfg.PLAYER_SHIP[0].points_screen)
             if cfg.playing_thrust_sound:
-                screen.ship(cfg.surface, cfg.PLAYER_SHIP[0].fpoints_screen)
+                calcscreen.ship(cfg.surface, cfg.PLAYER_SHIP[0].fpoints_screen)
             if cfg.player_ship_thrust:
                 if not cfg.playing_thrust_sound:
                     cfg.sound_thruster.play(-1, fade_ms=100)
@@ -566,15 +566,15 @@ def main():
 
         hit.bullet_rock(cfg.ALIEN_BULLETS)
         hit.move_sparks()
-        screen.score(cfg.surface)
-        screen.parked_ships(cfg.surface)
+        calcscreen.score(cfg.surface)
+        calcscreen.parked_ships(cfg.surface)
 
         # alien ship
         if len(cfg.ALIEN_SHIP) > 0:
             if not ufo_sound:
                 cfg.sound_big_ufo.play(-1, fade_ms=1000)
                 ufo_sound = True
-            screen.ship(cfg.surface, cfg.ALIEN_SHIP[0].points_screen)
+            calcscreen.ship(cfg.surface, cfg.ALIEN_SHIP[0].points_screen)
             move_alien_ship()
             if pygame.time.get_ticks() > alien_ship_fire_when:
                 if add_alien_bullet():
@@ -601,7 +601,7 @@ def main():
                 waiting_for_spacer = pygame.time.get_ticks()
 
         cfg.ACTUAL_FPS = max(clock.get_fps(), 1)
-        screen.debug(cfg.surface, 0, 90, "A FPS: " + str(int(cfg.ACTUAL_FPS)))
+        calcscreen.debug(cfg.surface, 0, 90, "A FPS: " + str(int(cfg.ACTUAL_FPS)))
         # draw_screen.debug(surface, 0, 90, "a: " + str(no_alien_ship_when))
 
         pygame.display.update()

@@ -2,7 +2,7 @@ import cfg
 import random
 import math
 import pygame
-import screen
+import calcscreen
 
 
 class Rock(object):
@@ -31,7 +31,7 @@ class Rock(object):
             self.points.append((point_ang, point_dis))
         self.angle = random.uniform(0, 2 * math.pi)
         self.angle = 0
-        self.points_screen = screen.calc_screen_pos(self, self.points)
+        self.points_screen = calcscreen.calc_screen_pos(self, self.points)
         self.ufo_bullet_hit_when = 0
 
         """
@@ -153,6 +153,6 @@ def move_rocks():
             cfg.ROCKS[i].pos[1] -= cfg.SCREEN_HEIGHT
 
         cfg.ROCKS[i].angle += cfg.ROCKS[i].rotation_speed / cfg.ACTUAL_FPS
-        cfg.ROCKS[i].points_screen = screen.calc_screen_pos(cfg.ROCKS[i], cfg.ROCKS[i].points)
+        cfg.ROCKS[i].points_screen = calcscreen.calc_screen_pos(cfg.ROCKS[i], cfg.ROCKS[i].points)
 
-        screen.rock(cfg.surface, cfg.ROCKS[i])
+        calcscreen.rock(cfg.surface, cfg.ROCKS[i])

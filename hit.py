@@ -3,7 +3,7 @@ import rock
 import random
 import math
 import pygame
-import screen
+import calcscreen
 
 # TODO: is there any boxing limits for efficiency?
 '''
@@ -63,7 +63,7 @@ def move_sparks():
                 if cfg.SPARKS[i].pos[1] > cfg.SCREEN_HEIGHT:
                     cfg.SPARKS[i].pos[1] -= cfg.SCREEN_HEIGHT
 
-                screen.spark_bit(cfg.surface, cfg.SPARKS[i])
+                calcscreen.spark_bit(cfg.surface, cfg.SPARKS[i])
     return some_bits
 
 
