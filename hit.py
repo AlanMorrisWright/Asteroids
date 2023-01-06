@@ -1,5 +1,4 @@
 import cfg
-import rock
 import random
 import math
 import pygame
