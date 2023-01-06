@@ -1,12 +1,8 @@
+import sys, os
+import math, random, pickle, pygame
 import cfg
-import pygame
-import sys
-import os
-import math
-import pickle
-import random
-from string import ascii_uppercase
 
+# screen
 surface = pygame.display.set_mode(cfg.SCREEN_SIZE, pygame.FULLSCREEN)
 
 # sound
@@ -19,13 +15,11 @@ sound_rock_hit = pygame.mixer.Sound('sound/rock_hit.ogg')
 sound_big_ufo = pygame.mixer.Sound('sound/big_ufo.ogg')
 sound_extra_ship = pygame.mixer.Sound('sound/extra_ship.ogg')
 
-sound_fire.set_volume(.5)
-sound_thruster.set_volume(.5)
+sound_fire.set_volume(.05)
+sound_thruster.set_volume(.125)
 sound_rock_hit.set_volume(1)
-sound_big_ufo.set_volume(.1)
-sound_extra_ship.set_volume(.5)
-
-name_chars = ascii_uppercase + ' '
+sound_big_ufo.set_volume(.025)
+sound_extra_ship.set_volume(.125)
 
 if sys.platform in ["win32", "win64"]:
     os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -977,7 +971,7 @@ def debug(surface, x, y, txt):
 def main():
     load_high_scores()
     instigate_rocks(cfg.ROCK_COUNT_START)
-    add_parked_ships(9)
+    add_parked_ships(cfg.START_SHIP_COUNT)
     player_ship_fired_when = 0
     no_alien_ship_when = 0
     alien_ship_fire_when = 0
@@ -1030,7 +1024,7 @@ def main():
                 my_char_id = 0
                 my_char_setting = 0
                 me = list('   ')
-                me_setting = list(name_chars[my_char_id] + '  ')
+                me_setting = list(cfg.SCORE_LETTERS[my_char_id] + '  ')
                 me_show = True
 
         if cfg.PLAYER_STATUS == 'new high score':
@@ -1055,11 +1049,11 @@ def main():
                     letter_change_when = pygame.time.get_ticks()
                     my_char_id -= cfg.player_ship_rotation_thruster
                     if my_char_id < 0:
-                        my_char_id = len(name_chars) - 1
-                    if my_char_id > len(name_chars) - 1:
+                        my_char_id = len(cfg.SCORE_LETTERS) - 1
+                    if my_char_id > len(cfg.SCORE_LETTERS) - 1:
                         my_char_id = 0
-                    me_setting = list(name_chars[my_char_id] + '  ')
-                    if name_chars[my_char_id] == ' ':
+                    me_setting = list(cfg.SCORE_LETTERS[my_char_id] + '  ')
+                    if cfg.SCORE_LETTERS[my_char_id] == ' ':
                         me = '-  '
                     else:
                         me = '   '

@@ -1,5 +1,3 @@
-# import random
-
 TARGET_FPS = 100
 ACTUAL_FPS = TARGET_FPS
 # game & screen
@@ -16,7 +14,7 @@ SCREEN_COLOR = [c, c, c]
 FONT = "Courier New"
 
 # game
-SCORE = 500
+SCORE = 0
 hiscores = []
 PLAYER_STATUS = 'start screen'
 GAME_STATUS_WHEN = 0
@@ -27,6 +25,7 @@ EXTRA_SHIP_SCORE = 10000
 game_over = False
 
 # player ship
+START_SHIP_COUNT = 3
 PLAYER_SHIP = []
 SPARKS = []
 SPARKLES_BRIGHTNESS = 0
@@ -71,4 +70,6 @@ player_ship_fired_when = 0
 # alien ship
 ALIEN_SHIP = []
 ALIEN_SHIP_SPEED = 150  # of 2 pi per sec?
-xxx = 50000
+# xxx = 50000  not needed?
+
+SCORE_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ '
