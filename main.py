@@ -1,5 +1,4 @@
 import cfg
-import calcscreen
 import pygame
 import sys
 import os
@@ -104,13 +103,13 @@ class PlayerShip(object):
         self.vel = [0, 0]
         self.angle = math.pi
         self.rotation_vel = 0
-        self.points_screen = calcscreen.calc_screen_pos(self, self.points)
+        self.points_screen = calc_screen_pos(self, self.points)
         # flame
         self.fpoints = []
         self.fpoints.append((0, -13))
         self.fpoints.append((0.8 * math.pi, 8))
         self.fpoints.append(((2 - 0.8) * math.pi, 8))
-        self.fpoints_screen = calcscreen.calc_screen_pos(self, self.fpoints)
+        self.fpoints_screen = calc_screen_pos(self, self.fpoints)
 
 
 class PlayerBullet(object):
@@ -176,8 +175,8 @@ def move_ship():
     cfg.PLAYER_SHIP[0].angle += \
         cfg.PLAYER_SHIP[0].rotation_vel * cfg.PLAYER_SHIP_ROTATION_SPEED / cfg.ACTUAL_FPS
 
-    cfg.PLAYER_SHIP[0].points_screen = calcscreen.calc_screen_pos(cfg.PLAYER_SHIP[0], cfg.PLAYER_SHIP[0].points)
-    cfg.PLAYER_SHIP[0].fpoints_screen = calcscreen.calc_screen_pos(cfg.PLAYER_SHIP[0], cfg.PLAYER_SHIP[0].fpoints)
+    cfg.PLAYER_SHIP[0].points_screen = calc_screen_pos(cfg.PLAYER_SHIP[0], cfg.PLAYER_SHIP[0].points)
+    cfg.PLAYER_SHIP[0].fpoints_screen = calc_screen_pos(cfg.PLAYER_SHIP[0], cfg.PLAYER_SHIP[0].fpoints)
 
 
 def add_bullet():
@@ -207,7 +206,7 @@ def move_bullets(who):
                 if who[i].pos[1] > cfg.SCREEN_HEIGHT:
                     who[i].pos[1] -= cfg.SCREEN_HEIGHT
 
-                calcscreen.bullet(cfg.surface, who[i])
+                bullet(cfg.surface, who[i])
 
 class AlienShip(object):
     def __init__(self):
@@ -239,7 +238,7 @@ class AlienShip(object):
         self.born = pygame.time.get_ticks()
         self.next_steer = self.born + 1000
         self.vel = [xv, 0]
-        self.points_screen = calcscreen.calc_screen_pos_alien_ship(self)
+        self.points_screen = calc_screen_pos_alien_ship(self)
 
 
 class AlienBullet(object):
@@ -385,7 +384,7 @@ def move_alien_ship():
     if cfg.ALIEN_SHIP[0].pos[1] > cfg.SCREEN_HEIGHT:
         cfg.ALIEN_SHIP[0].pos[1] -= cfg.SCREEN_HEIGHT
 
-    cfg.ALIEN_SHIP[0].points_screen = calcscreen.calc_screen_pos_alien_ship(cfg.ALIEN_SHIP[0])
+    cfg.ALIEN_SHIP[0].points_screen = calc_screen_pos_alien_ship(cfg.ALIEN_SHIP[0])
 
     if cfg.ALIEN_SHIP[0].pos[0] < -40 or cfg.ALIEN_SHIP[0].pos[0] > cfg.SCREEN_WIDTH + 40:
         del cfg.ALIEN_SHIP[0]
@@ -419,7 +418,7 @@ def move_alien_bullets():
                 if cfg.ALIEN_BULLETS[i].pos[1] > cfg.SCREEN_HEIGHT:
                     cfg.ALIEN_BULLETS[i].pos[1] -= cfg.SCREEN_HEIGHT
 
-                calcscreen.bullet(cfg.surface, cfg.ALIEN_BULLETS[i])
+                bullet(cfg.surface, cfg.ALIEN_BULLETS[i])
 
 class Rock(object):
     def __init__(self, size, pos, vel):
@@ -447,7 +446,7 @@ class Rock(object):
             self.points.append((point_ang, point_dis))
         self.angle = random.uniform(0, 2 * math.pi)
         self.angle = 0
-        self.points_screen = calcscreen.calc_screen_pos(self, self.points)
+        self.points_screen = calc_screen_pos(self, self.points)
         self.ufo_bullet_hit_when = 0
 
         """
@@ -569,9 +568,9 @@ def move_rocks():
             cfg.ROCKS[i].pos[1] -= cfg.SCREEN_HEIGHT
 
         cfg.ROCKS[i].angle += cfg.ROCKS[i].rotation_speed / cfg.ACTUAL_FPS
-        cfg.ROCKS[i].points_screen = calcscreen.calc_screen_pos(cfg.ROCKS[i], cfg.ROCKS[i].points)
+        cfg.ROCKS[i].points_screen = calc_screen_pos(cfg.ROCKS[i], cfg.ROCKS[i].points)
 
-        calcscreen.rock(cfg.surface, cfg.ROCKS[i])
+        rock(cfg.surface, cfg.ROCKS[i])
 
 class Spark(object):
     def __init__(self, pos, vel_x, vel_y):
@@ -612,7 +611,7 @@ def move_sparks():
                 if cfg.SPARKS[i].pos[1] > cfg.SCREEN_HEIGHT:
                     cfg.SPARKS[i].pos[1] -= cfg.SCREEN_HEIGHT
 
-                calcscreen.spark_bit(cfg.surface, cfg.SPARKS[i])
+                spark_bit(cfg.surface, cfg.SPARKS[i])
     return some_bits
 
 
@@ -815,6 +814,148 @@ def line_circle_hit(bx, by, rad, l2p1x, l2p1y, l2p2x, l2p2y):
             return True
     return False
 
+f = cfg.FONT
+
+
+def calc_screen_pos(self, poly):
+    points_screen = []
+    for point in range(len(poly)):
+        point_ang = poly[point][0] + self.angle
+        point_dis = poly[point][1]
+        scale = self.scale
+        x = self.pos[0] + math.sin(point_ang) * point_dis * scale
+        y = self.pos[1] + math.cos(point_ang) * point_dis * scale
+        points_screen.append((x, y))
+    return points_screen
+
+
+def calc_screen_pos_alien_ship(self):
+    points_screen = []
+    for point in range(len(self.points)):
+        scale = self.scale
+        x = self.pos[0] + self.points[point][0] * scale
+        y = self.pos[1] + self.points[point][1] * scale
+        points_screen.append((x, y))
+    return points_screen
+
+
+def spark_bit(surface, this_bit):
+    rr, gg, bb = cfg.SCREEN_COLOR
+    num = this_bit.die - pygame.time.get_ticks()
+    den = this_bit.die - this_bit.born
+    per = max(0, min(1, num / den))
+    pygame.draw.circle(
+        surface,
+        [rr * per, gg * per, bb * per],
+        (int(this_bit.pos[0]),
+         int(this_bit.pos[1])), int(this_bit.size),
+        1)
+
+
+def rock(surface, this_rock):
+    col = cfg.SCREEN_COLOR
+    # make the rock appear on the other side before it's origin
+    # todo: doses collision detect the 'other side' rock
+    for xo in (-cfg.SCREEN_WIDTH, 0, cfg.SCREEN_WIDTH):
+        for yo in (-cfg.SCREEN_HEIGHT, 0, cfg.SCREEN_HEIGHT):
+            new_rock_points = []
+            for p in range(len(this_rock.points_screen)):
+                x, y = this_rock.points_screen[p]
+                new_x = xo + x
+                new_y = yo + y
+                new_rock_points.append((new_x, new_y))
+            pygame.draw.polygon(
+                surface,
+                col,
+                new_rock_points,
+                1)
+
+
+def bullet(surface, this_bullet):
+    x, y = this_bullet.pos
+    pygame.draw.circle(
+        surface,
+        cfg.SCREEN_COLOR,
+        (int(x), int(y)),
+        cfg.BULLET_RADIUS,
+        1)
+
+
+def ship(surface, this_poly):
+    # if cfg.show_ship:
+    pygame.draw.polygon(
+        surface,
+        cfg.SCREEN_COLOR,
+        this_poly,
+        1)
+
+
+def parked_ships(surface):
+    for s in range(len(cfg.PARKED_SHIPS)):
+        pygame.draw.polygon(
+            surface,
+            cfg.SCREEN_COLOR,
+            cfg.PARKED_SHIPS[s].points_screen,
+            1)
+
+
+def start_screen(surface):
+    font = pygame.font.SysFont(f, 20)
+    characters = "Press FIRE to start"
+    colour = cfg.SCREEN_COLOR
+    text = font.render(characters, True, colour)
+    x = (cfg.SCREEN_WIDTH - text.get_width()) / 2
+    y = (cfg.SCREEN_HEIGHT - text.get_height()) / 4
+    surface.blit(text, (x, y))
+    show_scores(surface)
+
+
+def show_scores(surface):
+    font = pygame.font.SysFont(f, 20)
+    colour = cfg.SCREEN_COLOR
+    for s in range(len(cfg.hiscores)):
+        sc = cfg.hiscores[s][0]
+        if sc > 0:
+            strsc = font.render(str(sc), True, colour)
+            x = cfg.SCREEN_WIDTH / 2 - strsc.get_width() - 10
+            y = cfg.SCREEN_HEIGHT / 4 + (s + 1) * 30
+            surface.blit(strsc, (x, y))
+
+            who = font.render(cfg.hiscores[s][1], True, colour)
+            x = cfg.SCREEN_WIDTH / 2 + 10
+            y = cfg.SCREEN_HEIGHT / 4 + (s + 1) * 30
+            surface.blit(who, (x, y))
+
+
+def game_over(surface):
+    font = pygame.font.SysFont(f, 20)
+    characters = "Game Over !"
+    colour = cfg.SCREEN_COLOR
+    text = font.render(characters, True, colour)
+    x = (cfg.SCREEN_WIDTH - text.get_width()) / 2
+    y = (cfg.SCREEN_HEIGHT - text.get_height()) / 4
+    surface.blit(text, (x, y))
+    show_scores(surface)
+
+
+def score(surface):
+    font = pygame.font.SysFont(f, 20)
+    characters = "Score: " + str(cfg.SCORE)
+    colour = cfg.SCREEN_COLOR
+    text = font.render(characters, True, colour)
+    x = 0
+    y = 0
+    surface.blit(text, (x, y))
+
+
+def debug(surface, x, y, txt):
+    font = pygame.font.SysFont(f, 20)
+    characters = txt
+    colour = [255, 255, 255]
+    text = font.render(characters, True, colour)
+    surface.blit(text, (x, y))
+
+
 def main():
     load_high_scores()
     instigate_rocks(cfg.ROCK_COUNT_START)
@@ -833,7 +974,7 @@ def main():
         cfg.surface.fill((0, 0, 0))
 
         if cfg.PLAYER_STATUS == 'start screen':
-            calcscreen.start_screen(cfg.surface)
+            start_screen(cfg.surface)
             if cfg.player_ship_firing:
                 cfg.player_ship_firing = False
                 cfg.PLAYER_STATUS = 'waiting for space'
@@ -853,7 +994,7 @@ def main():
                     cfg.PLAYER_STATUS = 'waiting for space'
 
         if cfg.PLAYER_STATUS == 'game over':
-            calcscreen.game_over(cfg.surface)
+            game_over(cfg.surface)
             cfg.control_play_ship = False
             if cfg.player_ship_firing:
                 cfg.player_ship_firing = False
@@ -875,7 +1016,7 @@ def main():
                 me_show = True
 
         if cfg.PLAYER_STATUS == 'new high score':
-            calcscreen.game_over(cfg.surface)
+            game_over(cfg.surface)
 
             if pygame.time.get_ticks() > flash_when + 150:
                 # make it flash..
@@ -913,9 +1054,9 @@ def main():
 
 
         if cfg.PLAYER_STATUS == 'playing':
-            calcscreen.ship(cfg.surface, cfg.PLAYER_SHIP[0].points_screen)
+            ship(cfg.surface, cfg.PLAYER_SHIP[0].points_screen)
             if cfg.playing_thrust_sound:
-                calcscreen.ship(cfg.surface, cfg.PLAYER_SHIP[0].fpoints_screen)
+                ship(cfg.surface, cfg.PLAYER_SHIP[0].fpoints_screen)
             if cfg.player_ship_thrust:
                 if not cfg.playing_thrust_sound:
                     cfg.sound_thruster.play(-1, fade_ms=100)
@@ -958,15 +1099,15 @@ def main():
 
         bullet_rock(cfg.ALIEN_BULLETS)
         move_sparks()
-        calcscreen.score(cfg.surface)
-        calcscreen.parked_ships(cfg.surface)
+        score(cfg.surface)
+        parked_ships(cfg.surface)
 
         # alien ship
         if len(cfg.ALIEN_SHIP) > 0:
             if not ufo_sound:
                 cfg.sound_big_ufo.play(-1, fade_ms=1000)
                 ufo_sound = True
-            calcscreen.ship(cfg.surface, cfg.ALIEN_SHIP[0].points_screen)
+            ship(cfg.surface, cfg.ALIEN_SHIP[0].points_screen)
             move_alien_ship()
             if pygame.time.get_ticks() > alien_ship_fire_when:
                 if add_alien_bullet():
@@ -993,7 +1134,7 @@ def main():
                 waiting_for_spacer = pygame.time.get_ticks()
 
         cfg.ACTUAL_FPS = max(clock.get_fps(), 1)
-        calcscreen.debug(cfg.surface, 0, 90, "A FPS: " + str(int(cfg.ACTUAL_FPS)))
+        debug(cfg.surface, 0, 90, "A FPS: " + str(int(cfg.ACTUAL_FPS)))
         # draw_screen.debug(surface, 0, 90, "a: " + str(no_alien_ship_when))
 
         pygame.display.update()
